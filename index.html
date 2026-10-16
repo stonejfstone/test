@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4f7cff">
+<title>气质类型自评问卷</title>
+<style>
+  :root{
+    --bg:#f2f4f8; --card:#fff; --text:#1f2937; --sub:#6b7280;
+    --line:#e5e7eb; --pri:#4f7cff; --pri-d:#3b66e0;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--text); font-size:16px; line-height:1.65;
+    padding-bottom:140px; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:16px;}
+  .hero{
+    background:linear-gradient(135deg,#4f7cff,#7c5cff);
+    color:#fff;border-radius:16px;padding:22px 20px;margin-bottom:16px;
+  }
+  .hero h1{margin:0 0 6px;font-size:21px;letter-spacing:.5px;}
+  .hero .sub{margin:0;font-size:13.5px;opacity:.9;}
+  .hero .tips{
+    margin-top:14px;background:rgba(255,255,255,.16);
+    border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.6;
+  }
+  .card{
+    background:var(--card);border-radius:14px;padding:18px;
+    margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);
+  }
+  .q{
+    background:var(--card);border-radius:12px;padding:14px 16px;
+    margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);
+  }
+  .qhead{display:flex;gap:10px;margin-bottom:10px;}
+  .num{
+    flex:0 0 auto;width:24px;height:24px;border-radius:50%;
+    background:#eef3ff;color:var(--pri);font-size:13px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;margin-top:3px;
+  }
+  .qtext{font-size:15.5px;line-height:1.55;}
+  .opt{
+    display:flex;align-items:center;
+    width:100%;text-align:left;padding:11px 14px;margin-bottom:8px;
+    background:#f8fafc;border:1.5px solid var(--line);border-radius:10px;
+    font-size:15px;color:var(--text);font-family:inherit;cursor:pointer;
+    transition:background .15s,border-color .15s;
+  }
+  .opt:last-child{margin-bottom:0;}
+  .opt:active{background:#eef3ff;}
+  .opt.sel{background:#eef3ff;border-color:var(--pri);color:var(--pri-d);font-weight:600;}
+  .opt.sel::after{content:"✓";margin-left:auto;padding-left:12px;color:var(--pri);font-weight:700;}
+
+  .bottombar{
+    position:fixed;left:0;right:0;bottom:0;z-index:60;
+    background:rgba(255,255,255,.97);backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);
+    padding:10px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+  .progressline{height:5px;background:#e8ecf3;border-radius:99px;overflow:hidden;margin-bottom:9px;}
+  #bar{height:100%;width:0;background:linear-gradient(90deg,#4f7cff,#7c5cff);border-radius:99px;transition:width .25s;}
+  .bottomrow{display:flex;align-items:center;gap:12px;}
+  #ptext{font-size:13.5px;color:var(--sub);flex:1;}
+  #submitBtn{
+    border:none;border-radius:10px;padding:11px 20px;font-size:15px;
+    font-weight:600;font-family:inherit;color:#fff;cursor:pointer;
+    background:linear-gradient(135deg,#4f7cff,#6a63f6);
+  }
+  #submitBtn:disabled{background:#c8d0e0;cursor:not-allowed;}
+
+  .hidden{display:none !important;}
+
+  .verdictcard{text-align:center;padding:26px 18px;}
+  .vlabel{font-size:13.5px;color:var(--sub);letter-spacing:1px;}
+  .vmain{
+    font-size:30px;font-weight:800;margin:10px 0 6px;
+    background:linear-gradient(135deg,#4f7cff,#7c5cff);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    line-height:1.3;word-break:break-all;
+  }
+  .vsub{font-size:14px;color:var(--sub);}
+  .card h3{margin:0 0 14px;font-size:16px;}
+  .barrow{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .barlabel{flex:0 0 58px;font-size:14px;color:#374151;}
+  .bartrack{flex:1;height:20px;background:#eef1f6;border-radius:99px;overflow:hidden;}
+  .barfill{height:100%;border-radius:99px;transition:width .6s ease;}
+  .barval{flex:0 0 34px;text-align:right;font-size:15px;font-weight:700;}
+  .fb{font-size:15px;line-height:1.75;color:#374151;}
+  .btn2{
+    display:block;width:100%;margin-top:6px;padding:13px;
+    background:#fff;border:1.5px solid var(--pri);color:var(--pri);
+    border-radius:12px;font-size:15.5px;font-weight:600;font-family:inherit;cursor:pointer;
+  }
+  .foot{text-align:center;font-size:12.5px;color:#9aa3b2;padding:6px 0 20px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero" id="hero">
+    <h1>气质类型自评问卷</h1>
+    <p class="sub">共 60 题 · 约 8 分钟 · 答完即出结果</p>
+    <div class="tips">请根据平时真实情况，凭第一印象作答。答案无对错，仅供课堂自我了解使用。</div>
+  </header>
+
+  <main id="quiz"></main>
+
+  <section id="result" class="hidden"></section>
+
+  <div class="foot">气质无好坏 · 结果仅供自我认识参考</div>
+</div>
+
+<div class="bottombar" id="bottombar">
+  <div class="progressline"><div id="bar"></div></div>
+  <div class="bottomrow">
+    <span id="ptext">已完成 0 / 60</span>
+    <button id="submitBtn" disabled>提交查看结果</button>
+  </div>
+</div>
+
+<script>
+/* ============ 基础配置 ============ */
+const OPTIONS = [
+  {label:"很符合", value:2},
+  {label:"比较符合", value:1},
+  {label:"介于符合与不符合之间", value:0},
+  {label:"比较不符合", value:-1},
+  {label:"完全不符合", value:-2}
+];
+
+const TYPES = ["胆汁质","多血质","粘液质","抑郁质"];
+const ORDER = {"胆汁质":0,"多血质":1,"粘液质":2,"抑郁质":3};
+const COLORS = {"胆汁质":"#e8563f","多血质":"#f0a020","粘液质":"#3b82f6","抑郁质":"#8b5cf6"};
+
+/* ============ 60 题 + 所属气质 ============ */
+const QUESTIONS = [
+["做事力求稳妥，不做无把握的事。","粘液质"],
+["遇到可气的事就怒不可遏，想把心里话全说出来才痛快。","胆汁质"],
+["宁肯一个人干事，不愿很多人在一起。","抑郁质"],
+["到一个新环境很快就能适应。","多血质"],
+["厌恶那些强烈的刺激，如尖叫、噪音、危险的情境等。","抑郁质"],
+["和人争吵时，总是先发制人，喜欢挑衅。","胆汁质"],
+["喜欢安静的环境。","粘液质"],
+["善于和人交往。","多血质"],
+["羡慕那种善于克制自己感情的人。","胆汁质"],
+["生活有规律，很少违反作息制度。","粘液质"],
+["在多数情况下情绪是乐观的。","多血质"],
+["碰到陌生人觉得很拘束。","抑郁质"],
+["遇到令人气愤的事，能很好地自我克制。","粘液质"],
+["做事总是有旺盛的精力。","胆汁质"],
+["遇到问题常常举棋不定，优柔寡断。","抑郁质"],
+["在人群中从不觉得过分拘束。","多血质"],
+["情绪高昂时，觉得干什么都有趣；情绪低落时，又觉得什么都没意思。","胆汁质"],
+["当注意力集中于一事物时，别的事很难使我分心。","粘液质"],
+["理解问题总比别人快。","多血质"],
+["碰到危险情景，常有一种极度恐怖感。","抑郁质"],
+["对学习、工作、事业怀有很高的热情。","胆汁质"],
+["能够长时间做枯燥、单调的工作。","粘液质"],
+["符合兴趣的事情，干起来劲头十足，否则就不想干。","多血质"],
+["一点小事就能引起情绪波动。","抑郁质"],
+["讨厌做那种需要耐心、细致的工作。","多血质"],
+["与人交往不卑不亢。","粘液质"],
+["喜欢参加热烈的活动。","胆汁质"],
+["爱看感情细腻、描写人物内心活动的文学作品。","抑郁质"],
+["工作学习时间长了，常感到厌倦。","多血质"],
+["不喜欢长时间谈论一个问题，愿意实际动手干。","粘液质"],
+["宁愿侃侃而谈，不愿窃窃私语。","胆汁质"],
+["别人说我总是闷闷不乐。","抑郁质"],
+["理解问题常比别人慢些。","粘液质"],
+["疲倦时只要短暂的休息就能精神抖擞，重新投入工作。","多血质"],
+["心里有话宁愿自己想，不愿说出来。","抑郁质"],
+["认准一个目标就希望尽快实现，不达目的，誓不罢休。","胆汁质"],
+["学习、工作同样长的时间后，常比别人更疲倦。","抑郁质"],
+["做事有些莽撞，常常不考虑后果。","胆汁质"],
+["老师讲授新知识时，总希望他讲慢些，多重复几遍。","粘液质"],
+["能够很快地忘记那些不愉快的事情。","多血质"],
+["做作业或做一件事情，总比别人花的时间多。","抑郁质"],
+["喜欢运动量大的剧烈体育活动，或参加各种文艺活动。","胆汁质"],
+["不能很快地把注意力从一件事情转移到另一件事情上去。","粘液质"],
+["接受一个任务后，就希望把它迅速解决。","多血质"],
+["认为墨守成规比冒风险要强一些。","粘液质"],
+["能够同时注意几件事物。","多血质"],
+["当我烦闷的时候，别人很难使我高兴。","抑郁质"],
+["爱看情节起伏跌宕、激动人心的小说。","胆汁质"],
+["对工作抱认真严谨、始终一贯的态度。","粘液质"],
+["和周围人们的关系总是相处不好。","胆汁质"],
+["喜欢复习学过的知识，重复做已经掌握的工作。","抑郁质"],
+["希望做变化大、花样多的工作。","多血质"],
+["小时候会背的诗歌，我似乎比别人记得清楚。","抑郁质"],
+["别人说我“出语伤人”，可我并不觉得这样。","胆汁质"],
+["在体育活动中，常因反应慢而落后。","粘液质"],
+["反应敏捷，头脑机智。","多血质"],
+["喜欢有条理而不甚麻烦的工作。","粘液质"],
+["兴奋的事常使我失眠。","胆汁质"],
+["老师讲新概念，常常听不懂，但是弄懂以后就难忘记。","抑郁质"],
+["假如工作枯燥无味，马上就会情绪低落。","多血质"]
+];
+
+/* ============ 反馈语 ============ */
+const FEEDBACK = {
+"胆汁质":"精力旺盛、反应迅速、行动力强，做事目标感强。建议在关键决定前给自己 3 秒缓冲，练习倾听与延迟反应，避免因急躁影响人际关系。",
+"多血质":"活泼灵活、善于交往、适应新环境快，兴趣广泛。建议用清单和截止时间稳住节奏，刻意培养对枯燥任务的耐受力。",
+"粘液质":"安静稳重、耐受性强、做事有条理、情绪平稳。这是很可靠的优势；可以主动尝试新方法、新任务，避免陷入惯性。",
+"抑郁质":"敏感细腻、体验深刻、观察力强、谨慎周全。建议发挥共情与洞察优势，用具体行动打破内耗，并为自己建立稳定的支持系统。",
+"胆汁质+多血质":"热情外放，行动力与社交力兼具，但容易冲动或兴趣转移。建议先锁定目标再投入，并配合定期复盘。",
+"胆汁质+粘液质":"目标感与稳定性并存，既有冲劲又能坚持。注意刚柔并济，沟通时多给别人表达空间。",
+"胆汁质+抑郁质":"强动力与高敏感并存，情绪张力较大。建议规律作息、建立情绪出口，重要决定避免在情绪高峰或低谷时做出。",
+"多血质+粘液质":"灵活又稳定，适应力与坚持力兼具，是比较好的组合。注意在变化中保持节奏，不被琐事分散。",
+"多血质+抑郁质":"社交活力与内心敏感并存。建议平衡社交与独处时间，保护注意力，别过度解读他人反应。",
+"粘液质+抑郁质":"稳重细腻、谨慎持久，做事踏实。建议多表达自己的需求，避免长期压抑和内耗。",
+"三种混合型":"三种气质特征较为接近，说明你的行为反应比较灵活，会随情境调整。不必给自己贴单一标签，可结合具体场合理解自己。",
+"混合型/不典型":"四类得分差异不明显，可能说明你尚未形成稳定的典型倾向，或答题时较为折中。建议结合日常真实表现再观察。"
+};
+
+/* ============ 状态 ============ */
+const answers = new Array(60).fill(null);
+const quizEl = document.getElementById('quiz');
+const resultEl = document.getElementById('result');
+const barEl = document.getElementById('bar');
+const ptextEl = document.getElementById('ptext');
+const submitBtn = document.getElementById('submitBtn');
+const bottombar = document.getElementById('bottombar');
+const hero = document.getElementById('hero');
+
+/* ============ 生成题目 ============ */
+function buildQuiz(){
+  let html = '';
+  QUESTIONS.forEach((q,i)=>{
+    html += '<div class="q"><div class="qhead"><span class="num">'+(i+1)+'</span><span class="qtext">'+q[0]+'</span></div><div class="opts">';
+    OPTIONS.forEach((o,j)=>{
+      html += '<button class="opt" data-q="'+i+'" data-o="'+j+'">'+o.label+'</button>';
+    });
+    html += '</div></div>';
+  });
+  quizEl.innerHTML = html;
+}
+
+/* ============ 点击选项 ============ */
+quizEl.addEventListener('click', function(e){
+  const btn = e.target.closest('.opt');
+  if(!btn) return;
+  const qi = +btn.dataset.q;
+  const oi = +btn.dataset.o;
+  answers[qi] = oi;
+  const opts = btn.parentElement.querySelectorAll('.opt');
+  opts.forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  updateProgress();
+});
+
+/* ============ 进度 ============ */
+function updateProgress(){
+  const done = answers.filter(a=>a!==null).length;
+  barEl.style.width = (done/60*100)+'%';
+  if(done < 60){
+    ptextEl.textContent = '已完成 '+done+' / 60（还差 '+(60-done)+' 题）';
+    submitBtn.disabled = true;
+  }else{
+    ptextEl.textContent = '已完成 60 / 60 ✓';
+    submitBtn.disabled = false;
+  }
+}
+
+/* ============ 计分 ============ */
+function computeScores(){
+  const s = {"胆汁质":0,"多血质":0,"粘液质":0,"抑郁质":0};
+  QUESTIONS.forEach((q,i)=>{
+    s[q[1]] += OPTIONS[answers[i]].value;
+  });
+  return s;
+}
+
+/* ============ 判定 ============ */
+function judge(scores){
+  const arr = TYPES.map(t=>({name:t, v:scores[t]})).sort((a,b)=>b.v-a.v);
+  const a=arr[0], b=arr[1], c=arr[2], d=arr[3];
+
+  if(a.v - b.v >= 4){
+    return {name:a.name, desc:"该类型倾向较明显"};
+  }
+  if(a.v - b.v <= 3 && b.v - c.v >= 4){
+    const pair = [a.name,b.name].sort((x,y)=>ORDER[x]-ORDER[y]).join("+");
+    return {name:pair, desc:"两种气质混合型"};
+  }
+  if(a.v - c.v <= 3 && c.v - d.v >= 4){
+    return {name:"三种混合型", desc:"三种气质特征较为接近"};
+  }
+  return {name:"混合型/不典型", desc:"四类得分差异不明显"};
+}
+
+/* ============ 渲染结果 ============ */
+function renderResult(scores, verdict){
+  let bars = '';
+  TYPES.forEach(t=>{
+    const v = scores[t];
+    const w = Math.max(0, v) / 30 * 100;
+    bars += '<div class="barrow">'
+          +   '<div class="barlabel">'+t+'</div>'
+          +   '<div class="bartrack"><div class="barfill" style="width:'+w+'%;background:'+COLORS[t]+'"></div></div>'
+          +   '<div class="barval" style="color:'+COLORS[t]+'">'+v+'</div>'
+          + '</div>';
+  });
+
+  const fb = FEEDBACK[verdict.name] || "请结合日常表现综合理解自己。";
+
+  resultEl.innerHTML =
+    '<div class="card verdictcard">'
+  +   '<div class="vlabel">你的气质类型倾向</div>'
+  +   '<div class="vmain">'+verdict.name+'</div>'
+  +   '<div class="vsub">'+verdict.desc+'</div>'
+  + '</div>'
+  + '<div class="card">'
+  +   '<h3>各项得分</h3>'
+  +   bars
+  +   '<div style="font-size:12.5px;color:#9aa3b2;margin-top:6px;">每类满分 30 分，最低 -30 分。分数越高代表该气质特征越明显。</div>'
+  + '</div>'
+  + '<div class="card">'
+  +   '<h3>反馈建议</h3>'
+  +   '<div class="fb">'+fb+'</div>'
+  + '</div>'
+  + '<button class="btn2" id="retryBtn">重新测试</button>';
+
+  document.getElementById('retryBtn').addEventListener('click', reset);
+}
+
+/* ============ 提交 ============ */
+submitBtn.addEventListener('click', function(){
+  if(answers.filter(a=>a!==null).length < 60) return;
+  const scores = computeScores();
+  const verdict = judge(scores);
+  renderResult(scores, verdict);
+
+  hero.classList.add('hidden');
+  quizEl.classList.add('hidden');
+  bottombar.classList.add('hidden');
+  document.body.style.paddingBottom = '24px';
+  resultEl.classList.remove('hidden');
+  window.scrollTo(0,0);
+});
+
+/* ============ 重置 ============ */
+function reset(){
+  answers.fill(null);
+  buildQuiz();
+  updateProgress();
+  resultEl.classList.add('hidden');
+  hero.classList.remove('hidden');
+  quizEl.classList.remove('hidden');
+  bottombar.classList.remove('hidden');
+  document.body.style.paddingBottom = '140px';
+  window.scrollTo(0,0);
+}
+
+/* ============ 启动 ============ */
+buildQuiz();
+updateProgress();
+</script>
+</body>
+</html>
